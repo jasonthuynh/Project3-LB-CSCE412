@@ -30,27 +30,24 @@ void LoadBalancer::generateInitialQueue() {
     int initSize = 100 * webservers.size();
     for (int i = 0; i < initSize; ++i) {
         Request r;
-        if (!isBlockedIP(r.ipIn)) {
-            requestQueue.push(r);
-        } else {
-            totalBlocked++;
-        }
+        requestQueue.push(r);
     }
 }
 
 void LoadBalancer::generateRandomRequests() {
     if (rand() % 100 < 40) { // 40% chance of new request
         Request r;
-        if (!isBlockedIP(r.ipIn)) {
-            requestQueue.push(r);
-        } else {
-            totalBlocked++;
-        }
+        requestQueue.push(r);
     }
 }
 
 void LoadBalancer::distributeRequests() {
     for (auto webserver: webservers) {
+        // remove blocked IP addresses
+        while (!requestQueue.empty() && isBlockedIP(requestQueue.front().ipIn)) {
+            requestQueue.pop();
+            totalBlocked++;
+        }
         if (webserver->isIdle() && !requestQueue.empty()) {
             webserver->assignRequest(requestQueue.front());
             requestQueue.pop();
@@ -118,10 +115,6 @@ void LoadBalancer::run(int totalCycles) {
         distributeRequests();
         scaleServers();
     }
-
-    std::cout << "\nSimulation Complete\n";
-    std::cout << "Total Processed: " << totalProcessed << "\n";
-    std::cout << "Total Dropped (Firewall): " << totalBlocked << "\n";
 }
 
 void LoadBalancer::logEvent(const std::string& message) {
@@ -131,10 +124,10 @@ void LoadBalancer::logEvent(const std::string& message) {
 void LoadBalancer::printSummary() {
     std::cout << "\n===== Simulation Summary =====\n";
     std::cout << "Total Processed: " << totalProcessed << "\n";
-    std::cout << "Total Dropped: " << totalBlocked << "\n";
+    std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
     std::cout << "Final Server Count: " << webservers.size() << "\n";
 
     logFile << "\n===== Simulation Summary =====\n";
     logFile << "Total Processed: " << totalProcessed << "\n";
-    logFile << "Total Dropped: " << totalBlocked << "\n";
+    logFile << "Total Blocked (Firewall): " << totalBlocked << "\n";
 }

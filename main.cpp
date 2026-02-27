@@ -17,6 +17,7 @@ int main() {
 
     LoadBalancer lb(numServers, 50);
     lb.run(simulationTime);
+    lb.printSummary();
 
     return 0;
 }
