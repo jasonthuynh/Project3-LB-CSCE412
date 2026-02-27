@@ -3,20 +3,24 @@
 #include <ctime>
 #include "LoadBalancer.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     srand(time(0));
     
-    int numServers;
-    int simulationTime;
+    // Default vals
+    int numServers = 10;
+    int clockCycles = 10000;
 
-    std::cout << "Enter number of servers: ";
-    std::cin >> numServers;
+    if (argc > 1) {
+        numServers = std::atoi(argv[1]);
+    }
+    if (argc > 2) {
+        clockCycles = std::atoi(argv[2]);
+    }
 
-    std::cout << "Enter simulation time (clock cycles): ";
-    std::cin >> simulationTime;
+    std::cout << "\n" << "Starting simulation with " << numServers << " servers for " << clockCycles << " clock cycles.\n\n";
 
     LoadBalancer lb(numServers, 50);
-    lb.run(simulationTime);
+    lb.run(clockCycles);
     lb.printSummary();
 
     return 0;
