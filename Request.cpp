@@ -17,7 +17,7 @@ std::string Request::generateRandomIP() {
 }
 
 int Request::generateRandomTime() {
-    return std::rand() % 10 + 1; // takes up 1-10 cycles
+    return std::rand() % 100 + 1; // takes up 1-100 cycles
 }
 
 char Request::generateRandomJobType() {

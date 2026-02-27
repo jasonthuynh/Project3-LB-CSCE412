@@ -3,6 +3,7 @@
 #include <sstream>
 
 LoadBalancer::LoadBalancer(int numServers, int coolDown) {
+    logFile.open("event.log");
     currentTime = 0;
     coolDownCounter = 0;
     coolDownPeriod = coolDown;
@@ -22,6 +23,7 @@ LoadBalancer::~LoadBalancer() {
     for (auto webserver: webservers) {
         delete webserver;
     }
+    logFile.close();
 }
 
 void LoadBalancer::generateInitialQueue() {
@@ -37,7 +39,7 @@ void LoadBalancer::generateInitialQueue() {
 }
 
 void LoadBalancer::generateRandomRequests() {
-    if (rand() % 100 < 30) { // 30% chance of new request
+    if (rand() % 100 < 40) { // 40% chance of new request
         Request r;
         if (!isBlockedIP(r.ipIn)) {
             requestQueue.push(r);
@@ -80,6 +82,8 @@ void LoadBalancer::scaleServers() {
 
 void LoadBalancer::addServer() {
     webservers.push_back(new WebServer());
+    std::cout << GREEN << "Server added." << RESET << "\n";
+    logEvent("Server added. Total servers: " + std::to_string(webservers.size()));
 }
 
 void LoadBalancer::removeServer() {
@@ -87,14 +91,18 @@ void LoadBalancer::removeServer() {
         if (webservers[i]->isIdle()) {
             delete webservers[i];
             webservers.erase(webservers.begin() + i);
+            std::cout << YELLOW << "Server removed." << RESET << "\n";
+            logEvent("Server removed. Total servers: " + std::to_string(webservers.size()));
             return;
         }
     }
 }
 
 bool LoadBalancer::isBlockedIP(const std::string& ip) {
-    // We are blocking 192.168.0.0 - 192.168.0.255
-    if (ip.find("192.168.0.") == 0) {
+    // We are blocking IP addresses that start with 10
+    if (ip.find("10.") == 0) {
+        std::cout << RED << "Blocked IP: " << ip << RESET << "\n";
+        logEvent("Blocked IP: " + ip);
         return true;
     }
     return false;
@@ -114,4 +122,19 @@ void LoadBalancer::run(int totalCycles) {
     std::cout << "\nSimulation Complete\n";
     std::cout << "Total Processed: " << totalProcessed << "\n";
     std::cout << "Total Dropped (Firewall): " << totalBlocked << "\n";
+}
+
+void LoadBalancer::logEvent(const std::string& message) {
+    logFile << "[Time " << currentTime << "] " << message << "\n";
+}
+
+void LoadBalancer::printSummary() {
+    std::cout << "\n===== Simulation Summary =====\n";
+    std::cout << "Total Processed: " << totalProcessed << "\n";
+    std::cout << "Total Dropped: " << totalBlocked << "\n";
+    std::cout << "Final Server Count: " << webservers.size() << "\n";
+
+    logFile << "\n===== Simulation Summary =====\n";
+    logFile << "Total Processed: " << totalProcessed << "\n";
+    logFile << "Total Dropped: " << totalBlocked << "\n";
 }
