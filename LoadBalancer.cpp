@@ -2,11 +2,12 @@
 #include <iostream>
 #include <sstream>
 
-LoadBalancer::LoadBalancer(int numServers, int coolDown) {
-    logFile.open("event.log");
+LoadBalancer::LoadBalancer(int numServers, int coolDown, const std::string& logFileName, char loadBalancerType) {
+    logFile.open(logFileName);
     currentTime = 0;
     coolDownCounter = 0;
     coolDownPeriod = coolDown;
+    lbType = loadBalancerType;
 
     totalProcessed = 0;
     totalBlocked = 0;
@@ -27,9 +28,15 @@ LoadBalancer::~LoadBalancer() {
 }
 
 void LoadBalancer::generateInitialQueue() {
-    int initSize = 100 * webservers.size();
+    int initSize = 100 * webservers.size(); // queue starts full (100 * number of servers)
     for (int i = 0; i < initSize; ++i) {
         Request r;
+        if (lbType == 'S') {
+            r.jobType = 'S';
+        }
+        else if (lbType == 'P') {
+            r.jobType = 'P';
+        }
         requestQueue.push(r);
     }
 }
@@ -69,35 +76,38 @@ void LoadBalancer::scaleServers() {
     if (queueSize > maxThreshold * serverCount) {
         addServer();
         coolDownCounter = coolDownPeriod;
-        std::cout << "Server added. Total servers: " << webservers.size() << "\n";
+        printLBType();
+        std::cout << GREEN << "Server added." << RESET << "Total servers: " << webservers.size() << "\n";
+        logEvent("Server added. Total servers: " + std::to_string(webservers.size()));
     } else if (queueSize < minThreshold * serverCount && serverCount > 1) {
-        removeServer();
-        coolDownCounter = coolDownPeriod;
-        std::cout << "Server removed. Total servers: " << webservers.size() << "\n";
+        if (removeServer()) {
+            coolDownCounter = coolDownPeriod;
+            printLBType();
+            std::cout << YELLOW << "Server removed." << RESET << "Total servers: " << webservers.size() << "\n";
+            logEvent("Server removed. Total servers: " + std::to_string(webservers.size()));
+        }
     }
 }
 
 void LoadBalancer::addServer() {
     webservers.push_back(new WebServer());
-    std::cout << GREEN << "Server added." << RESET << "\n";
-    logEvent("Server added. Total servers: " + std::to_string(webservers.size()));
 }
 
-void LoadBalancer::removeServer() {
+bool LoadBalancer::removeServer() {
     for (int i = webservers.size() - 1; i >= 0; i--) {
         if (webservers[i]->isIdle()) {
             delete webservers[i];
             webservers.erase(webservers.begin() + i);
-            std::cout << YELLOW << "Server removed." << RESET << "\n";
-            logEvent("Server removed. Total servers: " + std::to_string(webservers.size()));
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 bool LoadBalancer::isBlockedIP(const std::string& ip) {
     // We are blocking IP addresses that start with 10
     if (ip.find("10.") == 0) {
+        printLBType();
         std::cout << RED << "Blocked IP: " << ip << RESET << "\n";
         logEvent("Blocked IP: " + ip);
         return true;
@@ -122,12 +132,39 @@ void LoadBalancer::logEvent(const std::string& message) {
 }
 
 void LoadBalancer::printSummary() {
-    std::cout << "\n===== Simulation Summary =====\n";
+    if (lbType == 'S') {
+        std::cout << "\n===== " << BLUE << "Streaming Load Balancer Summary" << RESET << " =====\n";
+        logFile << "\n===== Streaming Load Balancer Summary =====\n";
+    }
+    else if (lbType == 'P') {
+        std::cout << "\n===== " << PURPLE << "Processing Load Balancer Summary" << RESET << " =====\n";
+        logFile << "\n===== Processing Load Balancer Summary =====\n";
+    }
+    
     std::cout << "Total Processed: " << totalProcessed << "\n";
     std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
     std::cout << "Final Server Count: " << webservers.size() << "\n";
 
-    logFile << "\n===== Simulation Summary =====\n";
     logFile << "Total Processed: " << totalProcessed << "\n";
     logFile << "Total Blocked (Firewall): " << totalBlocked << "\n";
+    logFile << "Final Server Count: " << webservers.size() << "\n";
+}
+
+void LoadBalancer::addRequest(const Request& req) {
+    requestQueue.push(req);
+}
+
+void LoadBalancer::runOneCycle() {
+    currentTime++;
+    distributeRequests();
+    scaleServers();
+}
+
+void LoadBalancer::printLBType() {
+    if (lbType == 'S') {
+        std::cout << BLUE << "Streaming: " << RESET;
+    }
+    else if (lbType == 'P') {
+        std::cout << PURPLE << "Processing: " << RESET;
+    }
 }

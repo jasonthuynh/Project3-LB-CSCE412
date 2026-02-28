@@ -3,6 +3,8 @@
 #define GREEN "\033[32m"
 #define RED "\033[31m"
 #define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define PURPLE "\033[35m"
 #define RESET "\033[0m"
 
 #include <vector>
@@ -24,9 +26,10 @@ private:
     int totalBlocked;
     int minThreshold; // 50 * servers
     int maxThreshold; // 80 * servers
+    char lbType;
 
 public:
-    LoadBalancer(int numServers, int cooldown);
+    LoadBalancer(int numServers, int cooldown, const std::string& logFileName, char loadBalancerType);
     ~LoadBalancer();
 
     void generateInitialQueue();
@@ -36,9 +39,12 @@ public:
     void run(int totalCycles);
     bool isBlockedIP(const std::string& ip);
     void addServer();
-    void removeServer();
+    bool removeServer();
     void logEvent(const std::string& message);
     void printSummary();
+    void addRequest(const Request& req);
+    void runOneCycle();
+    void printLBType();
 };
 
 #endif

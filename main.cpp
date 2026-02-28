@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "LoadBalancer.h"
+#include "Switch.h"
 
 int main(int argc, char* argv[]) {
     srand(time(0));
@@ -23,9 +24,14 @@ int main(int argc, char* argv[]) {
 
     std::cout << "\n" << "Starting simulation with " << numServers << " servers for " << clockCycles << " clock cycles.\n\n";
 
-    LoadBalancer lb(numServers, wait_n_cycles);
-    lb.run(clockCycles);
-    lb.printSummary();
+    LoadBalancer streamingLB(numServers, wait_n_cycles, "streaming_log.txt", 'S');
+    LoadBalancer processingLB(numServers, wait_n_cycles, "processing_log.txt", 'P');
+
+    streamingLB.generateInitialQueue();
+    processingLB.generateInitialQueue();
+    
+    Switch networkSwitch(&streamingLB, &processingLB);
+    networkSwitch.run(clockCycles);
 
     return 0;
 }

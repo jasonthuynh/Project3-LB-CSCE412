@@ -21,8 +21,8 @@ int Request::generateRandomTime() {
 }
 
 char Request::generateRandomJobType() {
-    int random = std::rand() % 2;
-    if (random == 0) {
+    int random = std::rand() % 10;
+    if (random > 3) {
         return 'P';
     } else {
         return 'S';
