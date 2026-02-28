@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
-OBJS = main.o Request.o WebServer.o LoadBalancer.o
+OBJS = main.o Request.o WebServer.o LoadBalancer.o Switch.o
 
 all: loadbalancer
 
@@ -19,6 +19,9 @@ WebServer.o: WebServer.cpp
 
 LoadBalancer.o: LoadBalancer.cpp
 	$(CXX) $(CXXFLAGS) -c LoadBalancer.cpp
+
+Switch.o: Switch.cpp
+	$(CXX) $(CXXFLAGS) -c Switch.cpp
 
 clean:
 	rm -f *.o loadbalancer
