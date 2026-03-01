@@ -153,7 +153,7 @@ void LoadBalancer::logEvent(const std::string& message) {
     logFile << "[Time " << currentTime << "] " << message << "\n";
 }
 
-void LoadBalancer::printSummary(int totalCycles) {
+void LoadBalancer::printSummary(int totalCycles, int numServers) {
     if (lbType == 'S') {
         std::cout << "\n===== " << BLUE << "Streaming Load Balancer Summary" << RESET << " =====\n";
         logFile << "\n===== Streaming Load Balancer Summary =====\n";
@@ -167,6 +167,7 @@ void LoadBalancer::printSummary(int totalCycles) {
     std::cout << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
     std::cout << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock Cycles" << "\n";
+    std::cout << "Starting Server Count: " << numServers << "\n";
     std::cout << "Final Server Count: " << webservers.size() << "\n";
     std::cout << "Ending Request Queue Size: " << requestQueue.size() << "\n";
 
@@ -174,6 +175,7 @@ void LoadBalancer::printSummary(int totalCycles) {
     logFile << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     logFile << "Total Blocked (Firewall): " << totalBlocked << "\n";
     logFile << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock cycles" << "\n";
+    logFile << "Starting Server Count: " << numServers << "\n";
     logFile << "Final Server Count: " << webservers.size() << "\n";
     logFile << "Ending Request Queue Size: " << requestQueue.size() << "\n";
 }

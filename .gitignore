@@ -4,3 +4,4 @@ loadbalancer
 *.txt
 docs/
 latex/
+mainpage.md

@@ -23,7 +23,7 @@ void Switch::routeRequest(const Request& req) {
     }
 }
 
-void Switch::run(int totalCycles) {
+void Switch::run(int totalCycles, int numServers) {
     for (int i = 0; i < totalCycles; i++) {
         if (rand() % 100 < 40) { // 40% chance of new request
             Request r;
@@ -32,6 +32,6 @@ void Switch::run(int totalCycles) {
         streamingLB->runOneCycle();
         processingLB->runOneCycle();
     }
-    streamingLB->printSummary(totalCycles);
-    processingLB->printSummary(totalCycles);
+    streamingLB->printSummary(totalCycles, numServers);
+    processingLB->printSummary(totalCycles, numServers);
 }

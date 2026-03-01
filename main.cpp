@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     processingLB.generateInitialQueue();
     
     Switch networkSwitch(&streamingLB, &processingLB);
-    networkSwitch.run(clockCycles);
+    networkSwitch.run(clockCycles, numServers);
 
     return 0;
 }

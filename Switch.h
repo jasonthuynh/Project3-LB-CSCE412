@@ -50,7 +50,7 @@ class Switch {
          * 
          * @param totalCycles Number of clock cycles to run the simulation
          */
-        void run(int totalCycles);
+        void run(int totalCycles, int numServers);
 };
 
 #endif

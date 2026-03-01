@@ -184,7 +184,7 @@ public:
      * 
      * @param totalCycles Total number of simulation cycles for throughput calculation
      */
-    void printSummary(int totalCycles);
+    void printSummary(int totalCycles, int numServers);
     
     /**
      * @brief Adds a request directly to the queue (used by Switch).
