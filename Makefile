@@ -23,5 +23,11 @@ LoadBalancer.o: LoadBalancer.cpp
 Switch.o: Switch.cpp
 	$(CXX) $(CXXFLAGS) -c Switch.cpp
 
+docs:
+	doxygen Doxyfile
+	@echo "Documentation generated in docs/html/index.html"
+	@echo "Open with: open docs/html/index.html"
+
 clean:
 	rm -f *.o loadbalancer
+	rm -rf docs
