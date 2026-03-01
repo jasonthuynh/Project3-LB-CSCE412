@@ -164,6 +164,8 @@ void LoadBalancer::printSummary(int totalCycles, int numServers) {
     }
 
     std::cout << "Total Processed: " << totalProcessed << "\n";
+    std::cout << "Total Total Cycles: " << totalCycles << "\n";
+    std::cout << "Clock Cycles Between Scaling Servers: " << coolDownPeriod << "\n";
     std::cout << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
     std::cout << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock Cycles" << "\n";
@@ -172,6 +174,8 @@ void LoadBalancer::printSummary(int totalCycles, int numServers) {
     std::cout << "Ending Request Queue Size: " << requestQueue.size() << "\n";
 
     logFile << "Total Processed: " << totalProcessed << "\n";
+    logFile << "Total Total Cycles: " << totalCycles << "\n";
+    logFile << "Clock Cycles Between Scaling Servers: " << coolDownPeriod << "\n";
     logFile << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     logFile << "Total Blocked (Firewall): " << totalBlocked << "\n";
     logFile << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock cycles" << "\n";
