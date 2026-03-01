@@ -13,6 +13,5 @@ struct Request {
     std::string generateRandomIP();
     int generateRandomTime();
     char generateRandomJobType();
-
 };
 #endif

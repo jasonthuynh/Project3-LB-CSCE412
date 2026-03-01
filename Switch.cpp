@@ -24,6 +24,6 @@ void Switch::run(int totalCycles) {
         streamingLB->runOneCycle();
         processingLB->runOneCycle();
     }
-    streamingLB->printSummary();
-    processingLB->printSummary();
+    streamingLB->printSummary(totalCycles);
+    processingLB->printSummary(totalCycles);
 }

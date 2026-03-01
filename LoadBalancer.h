@@ -5,6 +5,7 @@
 #define YELLOW "\033[33m"
 #define BLUE "\033[34m"
 #define PURPLE "\033[35m"
+#define ORANGE "\033[38;5;208m"
 #define RESET "\033[0m"
 
 #include <vector>
@@ -27,6 +28,8 @@ private:
     int minThreshold; // 50 * servers
     int maxThreshold; // 80 * servers
     char lbType;
+    int upperTaskTime = 0;
+    int lowerTaskTime = 1000;
 
 public:
     LoadBalancer(int numServers, int cooldown, const std::string& logFileName, char loadBalancerType);
@@ -41,7 +44,7 @@ public:
     void addServer();
     bool removeServer();
     void logEvent(const std::string& message);
-    void printSummary();
+    void printSummary(int totalCycles);
     void addRequest(const Request& req);
     void runOneCycle();
     void printLBType();

@@ -1,6 +1,8 @@
 #include "LoadBalancer.h"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
 
 LoadBalancer::LoadBalancer(int numServers, int coolDown, const std::string& logFileName, char loadBalancerType) {
     logFile.open(logFileName);
@@ -31,6 +33,8 @@ void LoadBalancer::generateInitialQueue() {
     int initSize = 100 * webservers.size(); // queue starts full (100 * number of servers)
     for (int i = 0; i < initSize; ++i) {
         Request r;
+        upperTaskTime = std::max(upperTaskTime, r.timeRequired);
+        lowerTaskTime = std::min(lowerTaskTime, r.timeRequired);
         if (lbType == 'S') {
             r.jobType = 'S';
         }
@@ -39,11 +43,16 @@ void LoadBalancer::generateInitialQueue() {
         }
         requestQueue.push(r);
     }
+    printLBType();
+    std::cout << ORANGE << "Starting Queue Size: " RESET << std::to_string(requestQueue.size()) << "\n";
+    logEvent("Starting Queue Size: " + std::to_string(requestQueue.size()));
 }
 
 void LoadBalancer::generateRandomRequests() {
-    if (rand() % 100 < 40) { // 40% chance of new request
+    if (rand() % 100 < 30) { // 30% chance of new request
         Request r;
+        upperTaskTime = std::max(upperTaskTime, r.timeRequired);
+        lowerTaskTime = std::min(lowerTaskTime, r.timeRequired);
         requestQueue.push(r);
     }
 }
@@ -131,7 +140,7 @@ void LoadBalancer::logEvent(const std::string& message) {
     logFile << "[Time " << currentTime << "] " << message << "\n";
 }
 
-void LoadBalancer::printSummary() {
+void LoadBalancer::printSummary(int totalCycles) {
     if (lbType == 'S') {
         std::cout << "\n===== " << BLUE << "Streaming Load Balancer Summary" << RESET << " =====\n";
         logFile << "\n===== Streaming Load Balancer Summary =====\n";
@@ -140,14 +149,22 @@ void LoadBalancer::printSummary() {
         std::cout << "\n===== " << PURPLE << "Processing Load Balancer Summary" << RESET << " =====\n";
         logFile << "\n===== Processing Load Balancer Summary =====\n";
     }
+
+
     
     std::cout << "Total Processed: " << totalProcessed << "\n";
+    std::cout << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
+    std::cout << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock Cycles" << "\n";
     std::cout << "Final Server Count: " << webservers.size() << "\n";
+    std::cout << "Ending Request Queue Size: " << requestQueue.size() << "\n";
 
     logFile << "Total Processed: " << totalProcessed << "\n";
+    logFile << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     logFile << "Total Blocked (Firewall): " << totalBlocked << "\n";
+    logFile << "Task Time Range: " << lowerTaskTime << " to " << upperTaskTime << " Clock cycles" << "\n";
     logFile << "Final Server Count: " << webservers.size() << "\n";
+    logFile << "Ending Request Queue Size: " << requestQueue.size() << "\n";
 }
 
 void LoadBalancer::addRequest(const Request& req) {
