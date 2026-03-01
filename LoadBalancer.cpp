@@ -1,3 +1,12 @@
+/**
+ * @file LoadBalancer.cpp
+ * @brief Implementation of the LoadBalancer class.
+ * 
+ * Implements dynamic load distribution, automatic server scaling, firewall filtering,
+ * and comprehensive performance tracking for a web server pool. Supports both
+ * streaming and processing workload specialization.
+ */
+
 #include "LoadBalancer.h"
 #include <iostream>
 #include <sstream>
@@ -16,6 +25,9 @@ LoadBalancer::LoadBalancer(int numServers, int coolDown, const std::string& logF
 
     minThreshold = 50;
     maxThreshold = 80;
+
+    upperTaskTime = 0;
+    lowerTaskTime = std::numeric_limits<int>::max();
 
     for (int i = 0; i < numServers; ++i) {
         webservers.push_back(new WebServer());
@@ -124,6 +136,7 @@ bool LoadBalancer::isBlockedIP(const std::string& ip) {
     return false;
 }
 
+// not used with switch class. Was used for a single loadbalancer run
 void LoadBalancer::run(int totalCycles) {
     generateInitialQueue();
 
@@ -150,8 +163,6 @@ void LoadBalancer::printSummary(int totalCycles) {
         logFile << "\n===== Processing Load Balancer Summary =====\n";
     }
 
-
-    
     std::cout << "Total Processed: " << totalProcessed << "\n";
     std::cout << "Throughput: " << (static_cast<double>(totalProcessed) / totalCycles * 100) << "%" << "\n";
     std::cout << "Total Blocked (Firewall): " << totalBlocked << "\n";
@@ -168,6 +179,8 @@ void LoadBalancer::printSummary(int totalCycles) {
 }
 
 void LoadBalancer::addRequest(const Request& req) {
+    upperTaskTime = std::max(upperTaskTime, req.timeRequired);
+    lowerTaskTime = std::min(lowerTaskTime, req.timeRequired);
     requestQueue.push(req);
 }
 

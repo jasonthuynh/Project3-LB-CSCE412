@@ -1,3 +1,11 @@
+/**
+ * @file Switch.cpp
+ * @brief Implementation of the Switch class for request routing.
+ * 
+ * Coordinates two load balancers by routing requests based on job type,
+ * managing simulation execution, and aggregating performance results.
+ */
+
 #include "Switch.h"
 #include <iostream>
 

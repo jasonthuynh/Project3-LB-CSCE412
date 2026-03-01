@@ -1,3 +1,11 @@
+/**
+ * @file Request.cpp
+ * @brief Implementation of the Request class for load balancing simulation.
+ * 
+ * Provides random generation methods for creating realistic network request
+ * objects with randomized IP addresses, processing times, and job classifications.
+ */
+
 #include "Request.h"
 #include <cstdlib>
 #include <ctime>
